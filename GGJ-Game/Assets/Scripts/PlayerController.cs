@@ -104,6 +104,8 @@ public class PlayerController : MonoBehaviour
         private Camera cam;
         private SpriteRenderer renderer;
 
+        private double health = 100;
+
         private Vector2 moveTowards;
 
         public Player(GameObject parent, Sprite initialSprite)
@@ -120,21 +122,29 @@ public class PlayerController : MonoBehaviour
 
         public void move(Vector2 moveTowards)
         {
-            if (!checkWriteAccess(System.Environment.StackTrace)) throw new System.Exception("Illegal Access to Player.move()\nOnly A PlayerController may use this.");
             body.MovePosition(moveTowards);
         }
 
         public void setPosition(Vector2 pos)
         {
-            if (!checkWriteAccess(System.Environment.StackTrace)) throw new System.Exception("Illegal Access to Player.setPosition()\nOnly A PlayerController may use this.");
             parent.transform.position = pos;
         }
 
         public void setSprite(Sprite sprite)
         {
-            if (!checkWriteAccess(System.Environment.StackTrace)) throw new System.Exception("Illegal Access to Player.setSprite()\nOnly A PlayerController may use this.");
             parent.GetComponent<SpriteRenderer>().sprite = sprite;
         }
+
+        public void setHealth(double toSet)
+        {
+            this.health = toSet;
+        }
+
+        public double getHealth()
+        {
+            return this.health;
+        }
+
 
         public Sprite getSprite()
         {
@@ -145,19 +155,5 @@ public class PlayerController : MonoBehaviour
         {
             return this.parent.transform.position;
         }
-
-        /*
-         * Prevent Anything other than authorized controllers from setting things.
-         */
-        private bool checkWriteAccess(string stackTrace)
-        {
-            if (stackTrace.Split("\n")[2].Contains("PlayerController.Update () "))
-            {
-                //return true;
-            }
-
-            return false;
-        }
-
     }
 }
