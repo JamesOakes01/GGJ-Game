@@ -14,9 +14,18 @@ public class SpawnEnemy : MonoBehaviour
     [SerializeField] float top;
     [SerializeField] float bottom;
 
+    [Header("Temp position")]
+    [SerializeField] float horizontal;
+    [SerializeField] float vertical;
+
     // Start is called before the first frame update
     void Start()
     {
+
+
+        //public float randomHorizontal = Random.Range(left, right);
+        //public float randomVertical = Random.Range(bottom, top);
+
         StartCoroutine(timer());
     }
 
@@ -28,7 +37,8 @@ public class SpawnEnemy : MonoBehaviour
 
     IEnumerator timer()
     {
-        Instantiate(Ant);
+        //Instantiate(Ant, /*randomHorizontal*/13f,/*randomVertical*/10f,0f);
+        Instantiate(Ant, new Vector3(horizontal, vertical, 0f), Quaternion.identity);
         yield return new WaitForSeconds(5f);
     }
 }
