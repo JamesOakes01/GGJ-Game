@@ -21,11 +21,6 @@ public class SpawnEnemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-
-        //public float randomHorizontal = Random.Range(left, right);
-        //public float randomVertical = Random.Range(bottom, top);
-
         StartCoroutine(timer());
     }
 
@@ -35,10 +30,27 @@ public class SpawnEnemy : MonoBehaviour
         
     }
 
+    float rand(string orientation)
+    {
+        if (orientation == "vertical")
+        {
+            return Random.Range(bottom, top);
+        }
+        if (orientation == "horizontal")
+        {
+            return Random.Range(bottom, top);
+        }
+        else
+            return 0;
+        
+    }
+
     IEnumerator timer()
     {
-        //Instantiate(Ant, /*randomHorizontal*/13f,/*randomVertical*/10f,0f);
-        Instantiate(Ant, new Vector3(horizontal, vertical, 0f), Quaternion.identity);
-        yield return new WaitForSeconds(5f);
+        while (true)
+        {
+            Instantiate(Ant, new Vector3(rand("horizontal"), rand("vertical"), 0f), Quaternion.identity);
+            yield return new WaitForSeconds(5f);
+        }
     }
 }
