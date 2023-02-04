@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+<<<<<<< HEAD
+  - Entity
+=======
+  - Enemy
+>>>>>>> 16597e9426f762551e33ab6fb75cd9b64c505465
   layers:
   - Default
   - TransparentFX
@@ -17,7 +22,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Enemy
   - 
   - 
   - 
@@ -40,4 +45,42 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+<<<<<<< HEAD
+  - name: Background
+    uniqueID: 2157606095
+    locked: 0
+  - name: Structures
+    uniqueID: 3551222943
+    locked: 0
+  - name: Entities
+    uniqueID: 229122371
+    locked: 0
+  - name: Player
+    uniqueID: 731145595
+    locked: 0
+  - name: Foreground
+    uniqueID: 4287360929
+=======
+  - name: New Layer 1
+    uniqueID: 748333429
+    locked: 0
+  - name: New Layer 2
+    uniqueID: 3485467451
+    locked: 0
+  - name: New Layer 3
+    uniqueID: 1859861599
+    locked: 0
+  - name: Enemy
+    uniqueID: 377933137
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 1794480273
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 840802941
+    locked: 0
+  - name: New Layer 7
+    uniqueID: 1340668423
+>>>>>>> 16597e9426f762551e33ab6fb75cd9b64c505465
     locked: 0

@@ -1,37 +1,61 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Player Defaults")]
+
+    // Spawn Location
     [InspectorName("Spawn Location")]
     public Vector2 spawnLocation = Vector2.zero;
-    [InspectorName("Player Speed")]
+    
+    // Players walking speed
+    [InspectorName("Walk Speed")]
     public float speed = 0.5f;
+
+    // Players run speed
     [InspectorName("Run Speed")]
     public float runSpeed = 0.7f;
 
+    // Sprite list
     [Header("Sprites")]
     public Sprite[] sprites;
 
+    // (DEFAULT) Zoom Sensitivity
     [Header("Game Settings")]
-    [InspectorName("Zoom Sensetivity")]
+    [InspectorName("Zoom Sensitivity")]
     public float zoomSense = 5;
 
-    private Sprite currentSprite;
+    // Minimum Zoom
+    [InspectorName("Minimum Zoom")]
+    public float minFOV = 50;
 
-    // Start is called before the first frame update
+    // Maximum Zoom
+    [InspectorName("Maximum Zoom")]
+    public float maxFOV = 100;
+
+    // (HIDDEN) Player Object
+    [HideInInspector]
+    public Player player;
+
     void Start()
     {
-        this.gameObject.transform.position = spawnLocation;
-        currentSprite = sprites[0];
-        this.GetComponent<SpriteRenderer>().sprite = currentSprite;
+        // If GlobalSettings set
+        if(GameObject.Find("GlobalSettings"))
+        {
+            GameObject globalSettings = GameObject.Find("GlobalSettings");
+            this.zoomSense = (float)Variables.Object(globalSettings).Get("ZoomSensitivity");
+        }
+
+        // Create Player
+        player = new Player(this.gameObject, sprites[0]);
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Handle Input
         if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
         {
             float xAxis = Input.GetAxis("Horizontal");
@@ -48,19 +72,88 @@ public class PlayerController : MonoBehaviour
                 yAxis *= speed;
             }
 
-            Vector2 currenPost = new Vector2(this.transform.position.x, this.transform.position.y);
-            this.GetComponent<Rigidbody2D>().MovePosition(currenPost + new Vector2(xAxis*speed, yAxis*speed));
+            player.move(new Vector2(this.transform.position.x + xAxis, this.transform.position.y + yAxis));
         }
 
+        // Handle Camera Zooming
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
             // Camera Zoom Magic
             Camera cam = gameObject.GetComponentInChildren<Camera>();
             cam.fieldOfView -= Input.GetAxis("Mouse ScrollWheel") * zoomSense;
-            cam.fieldOfView = Mathf.Clamp(cam.fieldOfView, 50, 90);
+            cam.fieldOfView = Mathf.Clamp(cam.fieldOfView, minFOV, maxFOV);
+        }
+    }
+
+
+
+
+
+    /*
+     * 
+     * Player Class
+     * 
+     * I don't know why I did this, but I did
+     * It works amazingly and lets me access the player without cluttering the rest of the code.
+     * 
+     */
+    public class Player
+    {
+        private GameObject parent;
+        private Rigidbody2D body;
+        private Camera cam;
+        private SpriteRenderer renderer;
+
+        private double health = 100;
+
+        private Vector2 moveTowards;
+
+        public Player(GameObject parent, Sprite initialSprite)
+        {
+            this.parent = parent;
+            this.body = parent.GetComponent<Rigidbody2D>();
+            this.cam = parent.GetComponentInChildren<Camera>();
+            this.renderer = parent.GetComponent<SpriteRenderer>();
+
+            if (!parent || !body || !cam) throw new MissingComponentException("Player Not Setup Correctly.");
+            if (!initialSprite) throw new MissingComponentException("Player must be provided an initial sprite.");
+            renderer.sprite = initialSprite;
         }
 
-        if(this.GetComponent<SpriteRenderer>().sprite != currentSprite)
-            this.GetComponent<SpriteRenderer>().sprite = currentSprite;
+        public void move(Vector2 moveTowards)
+        {
+            body.MovePosition(moveTowards);
+        }
+
+        public void setPosition(Vector2 pos)
+        {
+            parent.transform.position = pos;
+        }
+
+        public void setSprite(Sprite sprite)
+        {
+            parent.GetComponent<SpriteRenderer>().sprite = sprite;
+        }
+
+        public void setHealth(double toSet)
+        {
+            this.health = toSet;
+        }
+
+        public double getHealth()
+        {
+            return this.health;
+        }
+
+
+        public Sprite getSprite()
+        {
+            return this.renderer.sprite;
+        }
+
+        public Vector2 getPosition()
+        {
+            return this.parent.transform.position;
+        }
     }
 }
