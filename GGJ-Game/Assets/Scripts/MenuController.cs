@@ -40,7 +40,7 @@ public class MenuController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Pause") && GlobalSettings != null && SceneManager.GetActiveScene().buildIndex > 0)
+        if (Input.GetButtonDown("Pause") && GlobalSettings != null && SceneManager.GetActiveScene().buildIndex > 0 && GameObject.Find("PlayerObject").GetComponent<PlayerController>().player.getHealth() > 0)
         {
             bool isPaused = (bool)Variables.Object(GlobalSettings).Get("IsPaused");
             if (isPaused)
