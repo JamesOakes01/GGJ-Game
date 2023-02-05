@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     [InspectorName("Spawn Location")]
     public Vector2 spawnLocation = Vector2.zero;
 
+    [InspectorName("Health Display")]
+    public GameObject healthMask;
+
     [InspectorName("Pause Panel")]
     public GameObject PauseUI;
 
@@ -45,7 +48,7 @@ public class PlayerController : MonoBehaviour
             globalSettings = GameObject.Find("GlobalSettings");
 
         // Create Player
-        player = new Player(this.gameObject, sprites[0], globalSettings);
+        player = new Player(this.gameObject, sprites, globalSettings);
     }
 
     void Update()
@@ -75,11 +78,49 @@ public class PlayerController : MonoBehaviour
             player.move(new Vector2(this.transform.position.x + xAxis, this.transform.position.y + yAxis));
         }
 
+
+        Vector3 normalMaskPosition = new Vector3(454, -188, 0);
+        Vector3 wantedMaskPosition = new Vector3(454, -88, 0);
+        Vector3 normalLeafPositon = new Vector3(0, 0, 0);
+        Vector3 wantedLeafPosition = new Vector3(0, -100, 0);
+        GameObject.Find("Health").transform.localPosition = Vector3.Lerp(normalMaskPosition, wantedMaskPosition, (float)(player.getHealth() / 100));
+        GameObject.Find("HealthLeaf").transform.localPosition = Vector3.Lerp(normalLeafPositon, wantedLeafPosition, (float)(player.getHealth() / 100));
+        GameObject.Find("HealthLeaf").GetComponent<UnityEngine.UI.RawImage>().color = Color.Lerp(new Color(.79f, .53f, .35f), new Color(.4f, .8f, .358f), (float)(player.getHealth() / 100));
+
+        if (player.getSprite() == sprites[1])
+            StartCoroutine(hitAnim());
         
         player.checkIsDead();
     }
 
-    
+
+    private bool debounce = false;
+    protected IEnumerator hitAnim()
+    {
+        if (debounce)
+            yield return null;
+
+        debounce = true;
+        SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+
+        renderer.enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        renderer.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        renderer.enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        renderer.enabled = true;
+        yield return new WaitForSeconds(0.2f);
+        renderer.enabled = false;
+        yield return new WaitForSeconds(0.2f);
+        renderer.enabled = true;
+        yield return new WaitForSeconds(0.5f);
+
+        gameObject.GetComponent<SpriteRenderer>().sprite = sprites[0];
+        debounce = false;
+    }
+
+
 
     /*
      * 
@@ -95,21 +136,23 @@ public class PlayerController : MonoBehaviour
         private Rigidbody2D body;
         private SpriteRenderer renderer;
         private GameObject globalSettings;
+        private Sprite[] spriteArray;
 
         private double health = 100;
 
         private Vector2 moveTowards;
 
-        public Player(GameObject parent, Sprite initialSprite, GameObject globalSettings)
+        public Player(GameObject parent, Sprite[] sprites, GameObject globalSettings)
         {
             this.parent = parent;
             this.body = parent.GetComponent<Rigidbody2D>();
             this.renderer = parent.GetComponent<SpriteRenderer>();
             this.globalSettings = globalSettings;
+            spriteArray = sprites;
 
             if (!parent || !body) throw new MissingComponentException("Player Not Setup Correctly.");
-            if (!initialSprite) throw new MissingComponentException("Player must be provided an initial sprite.");
-            renderer.sprite = initialSprite;
+            if (sprites == null) throw new MissingComponentException("Player must be provided an initial sprite.");
+            renderer.sprite = sprites[0];
         }
 
         public void checkIsDead()
@@ -119,6 +162,7 @@ public class PlayerController : MonoBehaviour
 
             if (this.health <= 0)
             {
+                parent.GetComponent<SpriteRenderer>().sprite = spriteArray[2];
                 parent.GetComponent<PlayerController>().diedScreen.SetActive(true);
                 Variables.Object(globalSettings).Set("IsPaused", true);
             }
@@ -144,6 +188,9 @@ public class PlayerController : MonoBehaviour
             this.health -= dmg;
 
             checkIsDead();
+
+            if(this.getSprite() != spriteArray[2])
+                parent.GetComponent<SpriteRenderer>().sprite = spriteArray[1];
         }
 
         public void setHealth(double toSet)
@@ -168,5 +215,7 @@ public class PlayerController : MonoBehaviour
         {
             return this.parent.transform.position;
         }
+
+        
     }
 }
