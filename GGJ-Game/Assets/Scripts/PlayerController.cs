@@ -11,8 +11,15 @@ public class PlayerController : MonoBehaviour
     [InspectorName("Spawn Location")]
     public Vector2 spawnLocation = Vector2.zero;
 
-    [InspectorName("Health Display")]
+    [InspectorName("Health Mask")]
     public GameObject healthMask;
+    [InspectorName("Health Leaf")]
+    public GameObject healthLeaf;
+    [InspectorName("Player HP")]
+    public float HP = 100;
+
+    [InspectorName("Win Seconds")]
+    public float WinTime = 60.0f;
 
     [InspectorName("Pause Panel")]
     public GameObject PauseUI;
@@ -39,7 +46,10 @@ public class PlayerController : MonoBehaviour
     [InspectorName("Died Panel")]
     public GameObject diedScreen;
 
-
+    Vector3 normalMaskPosition;
+    Vector3 wantedMaskPosition;
+    Vector3 normalLeafPositon;
+    Vector3 wantedLeafPosition;
     private GameObject globalSettings;
     
     void Start()
@@ -47,8 +57,15 @@ public class PlayerController : MonoBehaviour
         if (GameObject.Find("GlobalSettings"))
             globalSettings = GameObject.Find("GlobalSettings");
 
+        normalMaskPosition = healthMask.transform.position;
+        normalLeafPositon = healthLeaf.transform.position;
+        wantedMaskPosition = healthMask.transform.position + new Vector3(0, -200, 0);
+
         // Create Player
         player = new Player(this.gameObject, sprites, globalSettings);
+        player.setHealth(HP);
+
+        StartCoroutine(finishLevel(WinTime));
     }
 
     void Update()
@@ -79,13 +96,10 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        Vector3 normalMaskPosition = new Vector3(454, -188, 0);
-        Vector3 wantedMaskPosition = new Vector3(454, -288, 0);
-        Vector3 normalLeafPositon = new Vector3(0, 0, 0);
-        Vector3 wantedLeafPosition = new Vector3(0, 100, 0);
-        GameObject.Find("Health").transform.localPosition = Vector3.Lerp(wantedMaskPosition, normalMaskPosition, (float)(player.getHealth() / 100));
-        GameObject.Find("HealthLeaf").transform.localPosition = Vector3.Lerp(wantedLeafPosition, normalLeafPositon, (float)(player.getHealth() / 100));
-        GameObject.Find("HealthLeaf").GetComponent<UnityEngine.UI.RawImage>().color = Color.Lerp(new Color(.79f, .53f, .35f), new Color(.4f, .8f, .358f), (float)(player.getHealth() / 100));
+        
+        healthMask.transform.position = Vector3.Lerp(wantedMaskPosition, normalMaskPosition, (float)(player.getHealth() / 100));
+        healthLeaf.transform.position = normalLeafPositon;
+        healthLeaf.GetComponent<UnityEngine.UI.RawImage>().color = Color.Lerp(new Color(.79f, .53f, .35f), new Color(.4f, .8f, .358f), (float)(player.getHealth() / 100));
 
         if (player.getSprite() == sprites[1])
             StartCoroutine(hitAnim());
@@ -120,6 +134,29 @@ public class PlayerController : MonoBehaviour
         debounce = false;
     }
 
+
+
+    IEnumerator finishLevel(float seconds)
+    {
+        float localSeconds = 1;
+        GameObject ProgressBar = GameObject.Find("ProgressBarMid");
+        GameObject ProgressBarMask = GameObject.Find("ProgressBarMask");
+
+        Vector3 progressStartPos = ProgressBar.transform.position;
+        Vector3 maskStartPos = ProgressBarMask.transform.localPosition;
+        Vector3 maskStopPos = new Vector3(-963, 0, 0);
+
+        while(localSeconds <= seconds)
+        {
+            ProgressBar.transform.position = progressStartPos;
+            ProgressBarMask.transform.localPosition = Vector3.Lerp(maskStopPos, maskStartPos, localSeconds / seconds);
+            yield return new WaitForSeconds(1);
+            localSeconds = localSeconds + 1;
+        }
+
+        if (player.getHealth() > 0)
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
+    }
 
 
     /*

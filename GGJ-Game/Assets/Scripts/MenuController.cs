@@ -55,11 +55,6 @@ public class MenuController : MonoBehaviour
                 mainPanel.SetActive(true);
             }
         }
-        else
-        {
-            Debug.Log(GlobalSettings);
-            Debug.Log(SceneManager.GetActiveScene().buildIndex);
-        }
 
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {

@@ -45,7 +45,6 @@ public class EnemyScript : MonoBehaviour
         }
         if (purpose == "speed")
         {
-            Debug.Log("ran");
             return Random.Range(minSpeed, maxSpeed);
         }
         else
