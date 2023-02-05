@@ -80,11 +80,11 @@ public class PlayerController : MonoBehaviour
 
 
         Vector3 normalMaskPosition = new Vector3(454, -188, 0);
-        Vector3 wantedMaskPosition = new Vector3(454, -88, 0);
+        Vector3 wantedMaskPosition = new Vector3(454, -288, 0);
         Vector3 normalLeafPositon = new Vector3(0, 0, 0);
-        Vector3 wantedLeafPosition = new Vector3(0, -100, 0);
-        GameObject.Find("Health").transform.localPosition = Vector3.Lerp(normalMaskPosition, wantedMaskPosition, (float)(player.getHealth() / 100));
-        GameObject.Find("HealthLeaf").transform.localPosition = Vector3.Lerp(normalLeafPositon, wantedLeafPosition, (float)(player.getHealth() / 100));
+        Vector3 wantedLeafPosition = new Vector3(0, 100, 0);
+        GameObject.Find("Health").transform.localPosition = Vector3.Lerp(wantedMaskPosition, normalMaskPosition, (float)(player.getHealth() / 100));
+        GameObject.Find("HealthLeaf").transform.localPosition = Vector3.Lerp(wantedLeafPosition, normalLeafPositon, (float)(player.getHealth() / 100));
         GameObject.Find("HealthLeaf").GetComponent<UnityEngine.UI.RawImage>().color = Color.Lerp(new Color(.79f, .53f, .35f), new Color(.4f, .8f, .358f), (float)(player.getHealth() / 100));
 
         if (player.getSprite() == sprites[1])
