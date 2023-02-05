@@ -18,10 +18,14 @@ public class SpawnEnemy : MonoBehaviour
     [SerializeField] float horizontal;
     [SerializeField] float vertical;
 
+    private GameObject globalSettings;
+
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(timer());
+        globalSettings = GameObject.Find("GlobalSettings");
+        if (!(bool)Unity.VisualScripting.Variables.Object(globalSettings).Get("IsPaused"))
+            StartCoroutine(timer());
     }
 
     // Update is called once per frame

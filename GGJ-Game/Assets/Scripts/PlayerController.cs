@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     [InspectorName("Spawn Location")]
     public Vector2 spawnLocation = Vector2.zero;
 
+    [InspectorName("Pause Panel")]
+    public GameObject PauseUI;
+
     // Players walking speed
     [InspectorName("Walk Speed")]
     public float speed = 0.5f;
@@ -27,14 +30,31 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Player player;
 
+    [Header("Screens")]
+
+    // Player Died Screen
+    [InspectorName("Died Panel")]
+    public GameObject diedScreen;
+
+
+    private GameObject globalSettings;
+    
     void Start()
     {
+        if (GameObject.Find("GlobalSettings"))
+            globalSettings = GameObject.Find("GlobalSettings");
+
         // Create Player
-        player = new Player(this.gameObject, sprites[0]);
+        player = new Player(this.gameObject, sprites[0], globalSettings);
     }
 
     void Update()
     {
+        if (globalSettings == null)
+            globalSettings = GameObject.Find("GlobalSettings");
+        if (globalSettings)
+            if ((bool)Variables.Object(globalSettings).Get("IsPaused")) return;
+
         // Handle Input
         if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
         {
@@ -54,11 +74,12 @@ public class PlayerController : MonoBehaviour
 
             player.move(new Vector2(this.transform.position.x + xAxis, this.transform.position.y + yAxis));
         }
+
+        
+        player.checkIsDead();
     }
 
-
-
-
+    
 
     /*
      * 
@@ -73,20 +94,34 @@ public class PlayerController : MonoBehaviour
         private GameObject parent;
         private Rigidbody2D body;
         private SpriteRenderer renderer;
+        private GameObject globalSettings;
 
         private double health = 100;
 
         private Vector2 moveTowards;
 
-        public Player(GameObject parent, Sprite initialSprite)
+        public Player(GameObject parent, Sprite initialSprite, GameObject globalSettings)
         {
             this.parent = parent;
             this.body = parent.GetComponent<Rigidbody2D>();
             this.renderer = parent.GetComponent<SpriteRenderer>();
+            this.globalSettings = globalSettings;
 
             if (!parent || !body) throw new MissingComponentException("Player Not Setup Correctly.");
             if (!initialSprite) throw new MissingComponentException("Player must be provided an initial sprite.");
             renderer.sprite = initialSprite;
+        }
+
+        public void checkIsDead()
+        {
+            if (globalSettings == null)
+                globalSettings = GameObject.Find("GlobalSettings");
+
+            if (this.health <= 0)
+            {
+                parent.GetComponent<PlayerController>().diedScreen.SetActive(true);
+                Variables.Object(globalSettings).Set("IsPaused", true);
+            }
         }
 
         public void move(Vector2 moveTowards)
@@ -107,11 +142,15 @@ public class PlayerController : MonoBehaviour
         public void damage(float dmg)
         {
             this.health -= dmg;
+
+            checkIsDead();
         }
 
         public void setHealth(double toSet)
         {
             this.health = toSet;
+
+            checkIsDead();
         }
 
         public double getHealth()
