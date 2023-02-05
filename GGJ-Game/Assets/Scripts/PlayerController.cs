@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     // Spawn Location
     [InspectorName("Spawn Location")]
     public Vector2 spawnLocation = Vector2.zero;
-    
+
     // Players walking speed
     [InspectorName("Walk Speed")]
     public float speed = 0.5f;
@@ -23,32 +23,12 @@ public class PlayerController : MonoBehaviour
     [Header("Sprites")]
     public Sprite[] sprites;
 
-    // (DEFAULT) Zoom Sensitivity
-    [Header("Game Settings")]
-    [InspectorName("Zoom Sensitivity")]
-    public float zoomSense = 5;
-
-    // Minimum Zoom
-    [InspectorName("Minimum Zoom")]
-    public float minFOV = 50;
-
-    // Maximum Zoom
-    [InspectorName("Maximum Zoom")]
-    public float maxFOV = 100;
-
     // (HIDDEN) Player Object
     [HideInInspector]
     public Player player;
 
     void Start()
     {
-        // If GlobalSettings set
-        if(GameObject.Find("GlobalSettings"))
-        {
-            GameObject globalSettings = GameObject.Find("GlobalSettings");
-            this.zoomSense = (float)Variables.Object(globalSettings).Get("ZoomSensitivity");
-        }
-
         // Create Player
         player = new Player(this.gameObject, sprites[0]);
     }
@@ -74,15 +54,6 @@ public class PlayerController : MonoBehaviour
 
             player.move(new Vector2(this.transform.position.x + xAxis, this.transform.position.y + yAxis));
         }
-
-        // Handle Camera Zooming
-        if (Input.GetAxis("Mouse ScrollWheel") != 0)
-        {
-            // Camera Zoom Magic
-            Camera cam = gameObject.GetComponentInChildren<Camera>();
-            cam.fieldOfView -= Input.GetAxis("Mouse ScrollWheel") * zoomSense;
-            cam.fieldOfView = Mathf.Clamp(cam.fieldOfView, minFOV, maxFOV);
-        }
     }
 
 
@@ -101,7 +72,6 @@ public class PlayerController : MonoBehaviour
     {
         private GameObject parent;
         private Rigidbody2D body;
-        private Camera cam;
         private SpriteRenderer renderer;
 
         private double health = 100;
@@ -112,10 +82,9 @@ public class PlayerController : MonoBehaviour
         {
             this.parent = parent;
             this.body = parent.GetComponent<Rigidbody2D>();
-            this.cam = parent.GetComponentInChildren<Camera>();
             this.renderer = parent.GetComponent<SpriteRenderer>();
 
-            if (!parent || !body || !cam) throw new MissingComponentException("Player Not Setup Correctly.");
+            if (!parent || !body) throw new MissingComponentException("Player Not Setup Correctly.");
             if (!initialSprite) throw new MissingComponentException("Player must be provided an initial sprite.");
             renderer.sprite = initialSprite;
         }
@@ -133,6 +102,11 @@ public class PlayerController : MonoBehaviour
         public void setSprite(Sprite sprite)
         {
             parent.GetComponent<SpriteRenderer>().sprite = sprite;
+        }
+
+        public void damage(float dmg)
+        {
+            this.health -= dmg;
         }
 
         public void setHealth(double toSet)

@@ -34,11 +34,25 @@ public class SpawnEnemy : MonoBehaviour
     {
         if (orientation == "vertical")
         {
-            return Random.Range(bottom, top);
+            float temp;
+            do
+            {
+                temp = Random.Range(bottom - 10, top + 10);
+            } while (temp > bottom && temp < top);
+            return temp;
         }
         if (orientation == "horizontal")
         {
-            return Random.Range(bottom, top);
+            float temp;
+            do
+            {
+                temp = Random.Range(left - 10, right + 10);
+            } while (temp > left && temp < right);
+            return temp;
+        }
+        if (orientation == "numEnemy")
+        {
+            return Random.Range(1, 6);
         }
         else
             return 0;
@@ -49,8 +63,11 @@ public class SpawnEnemy : MonoBehaviour
     {
         while (true)
         {
-            Instantiate(Ant, new Vector3(rand("horizontal"), rand("vertical"), 0f), Quaternion.identity);
-            yield return new WaitForSeconds(5f);
+            for(int i = 0; i < rand("numEnemy"); i++)
+            {
+                Instantiate(Ant, new Vector3(rand("horizontal"), rand("vertical"), 0f), Quaternion.identity);
+            }
+            yield return new WaitForSeconds(rand("numEnemy"));
         }
     }
 }
