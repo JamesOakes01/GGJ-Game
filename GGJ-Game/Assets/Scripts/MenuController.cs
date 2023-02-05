@@ -26,6 +26,7 @@ public class MenuController : MonoBehaviour
     public GameObject settingsPanel;
 
     private static bool init = true;
+    private static int selected = 0;
 
     void Start()
     {
@@ -58,6 +59,32 @@ public class MenuController : MonoBehaviour
         {
             Debug.Log(GlobalSettings);
             Debug.Log(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+        {
+            if (Input.GetButtonDown("UP"))
+            {
+                selected = (selected - 1) % 4;
+                if (selected < 0)
+                    selected = 3 + selected;
+            }
+            if (Input.GetButtonDown("DOWN"))
+            {
+                selected = (selected + 1) % 3;
+            }
+            Debug.Log("Selected: " + selected);
+            GameObject.Find("MenuCursor").transform.position = GameObject.Find("Cursor " + selected).transform.position;
+
+            if (Input.GetButtonDown("Submit"))
+            {
+                if (selected == 0)
+                    onPlayButtonClick();
+                else if (selected == 1)
+                    onSettingsPressed();
+                else if (selected == 2)
+                    quitGame();
+            }
         }
 
     }
