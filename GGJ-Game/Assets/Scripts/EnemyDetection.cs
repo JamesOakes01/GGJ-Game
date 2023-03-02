@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyDetection : MonoBehaviour
 {
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,11 +19,15 @@ public class EnemyDetection : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+
         if (other.gameObject.CompareTag("Enemy"))
         {
-            Debug.Log("Bumped an Enemy!");
-            Destroy(this.gameObject);
-            //activate Game Over or lose life or whatever
+            PlayerController playerController = gameObject.GetComponent<PlayerController>();
+            float EnemyDamage = other.gameObject.GetComponent<EnemyScript>().getDamage();
+
+            playerController.player.damage(EnemyDamage);
+
+            Destroy(other.gameObject);
         }
     }
 }
